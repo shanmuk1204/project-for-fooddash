@@ -5,188 +5,184 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FoodDash - Order Food Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #111827;
+            background-color: #f3f4f6; /* Lighter background for a modern food app feel */
         }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1F2937; }
-        ::-webkit-scrollbar-thumb { background: #4B5563; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6B7280; }
         .restaurant-card {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
         }
         .restaurant-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        input::placeholder { color: #9CA3AF; }
-        .category-btn.active {
-            background-color: #F59E0B;
-            color: #111827;
-            font-weight: 700;
+        .filter-btn.active {
+            background-color: #ef4444; /* Red color for active filter */
+            color: white;
+            border-color: #ef4444;
         }
+        .rating-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+        }
+        .rating-high { background-color: #16a34a; color: white; } /* Green */
+        .rating-mid { background-color: #f59e0b; color: white; } /* Amber */
+        .rating-low { background-color: #ef4444; color: white; } /* Red */
     </style>
 </head>
-<body class="text-gray-200">
+<body class="bg-gray-100">
 
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         <!-- Header -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">
-                🛵 FoodDash
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-2">
+                FoodDash
             </h1>
-            <p class="text-lg text-gray-400">Discover and order from the best restaurants near you.</p>
+            <p class="text-lg text-gray-500">Discover the best food & drinks in Rajamahendravaram</p>
         </header>
 
-        <!-- Search and Filter Bar -->
-        <div class="sticky top-4 z-10 bg-gray-900/80 backdrop-blur-sm p-4 rounded-lg shadow-2xl mb-8">
-            <div class="flex flex-col md:flex-row items-center gap-4">
-                <div class="relative flex-grow w-full">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                    <input type="text" id="search-input" placeholder="Search for restaurant or cuisine..." class="w-full bg-gray-800 text-white border border-gray-700 rounded-md py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                </div>
-            </div>
-             <!-- Category Filters -->
-            <div id="category-filters" class="mt-4 flex flex-wrap gap-2 justify-center">
-                 <!-- Filter buttons will be inserted here by JavaScript -->
+        <!-- Search and Filters -->
+        <div class="mb-8 sticky top-4 z-10 bg-gray-100/80 backdrop-blur-sm p-4 rounded-xl shadow-sm">
+            <input type="text" id="search-input" placeholder="Search for restaurant, cuisine or a dish..." class="w-full p-4 border border-gray-300 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+            <div id="filter-container" class="mt-4 flex flex-wrap gap-2 justify-center">
+                <!-- Filter buttons will be dynamically inserted here -->
             </div>
         </div>
-        
-        <!-- Status Message -->
-        <h2 id="status-message" class="text-2xl font-bold text-white mb-6">All Restaurants</h2>
 
         <!-- Restaurant Grid -->
-        <main id="restaurant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <!-- Restaurant cards will be inserted here by JavaScript -->
+        <main>
+            <h2 class="text-2xl font-bold text-gray-700 mb-6">Restaurants For You</h2>
+            <div id="restaurant-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Restaurant cards will be dynamically inserted here -->
+            </div>
         </main>
-
     </div>
 
-    <script>
-        // --- RESTAURANT DATABASE ---
-        const restaurantsDB = [
-            { id: 1, name: 'Pizza Palace', cuisine: 'Pizza', rating: 4.5, deliveryTime: 30, priceForTwo: 500, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Pizza+Palace' },
-            { id: 2, name: 'Burger Barn', cuisine: 'Burgers', rating: 4.7, deliveryTime: 25, priceForTwo: 400, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Burger+Barn' },
-            { id: 3, name: 'Curry Kingdom', cuisine: 'North Indian', rating: 4.8, deliveryTime: 40, priceForTwo: 700, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Curry+Kingdom' },
-            { id: 4, name: 'Sushi Central', cuisine: 'Japanese', rating: 4.6, deliveryTime: 45, priceForTwo: 1200, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Sushi+Central' },
-            { id: 5, name: 'Taco Town', cuisine: 'Mexican', rating: 4.4, deliveryTime: 30, priceForTwo: 600, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Taco+Town' },
-            { id: 6, name: 'Wok Wonders', cuisine: 'Chinese', rating: 4.3, deliveryTime: 35, priceForTwo: 550, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Wok+Wonders' },
-            { id: 7, name: 'Pasta Perfection', cuisine: 'Italian', rating: 4.9, deliveryTime: 40, priceForTwo: 800, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Pasta+Perfection' },
-            { id: 8, name: 'Dosa Den', cuisine: 'South Indian', rating: 4.7, deliveryTime: 20, priceForTwo: 300, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Dosa+Den' },
-            { id: 9, name: 'King Kebab', cuisine: 'North Indian', rating: 4.5, deliveryTime: 35, priceForTwo: 650, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=King+Kebab' },
-            { id: 10, name: 'Salad Stories', cuisine: 'Healthy', rating: 4.8, deliveryTime: 20, priceForTwo: 700, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Salad+Stories' },
-            { id: 11, name: 'Slice of Italy', cuisine: 'Pizza', rating: 4.6, deliveryTime: 35, priceForTwo: 550, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Slice+of+Italy' },
-            { id: 12, name: 'Biryani Blues', cuisine: 'North Indian', rating: 4.9, deliveryTime: 45, priceForTwo: 800, imageUrl: 'https://placehold.co/600x400/111827/F59E0B?text=Biryani+Blues' },
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DOM Elements ---
+        const searchInput = document.getElementById('search-input');
+        const filterContainer = document.getElementById('filter-container');
+        const restaurantGrid = document.getElementById('restaurant-grid');
+
+        // --- Mock Data (Simulating a database) ---
+        const restaurants = [
+            { id: 1, name: 'Paradise Biryani', cuisine: ['Biryani', 'North Indian'], rating: 4.5, deliveryTime: 30, priceForTwo: 500, imageUrl: 'https://placehold.co/600x400/000000/FFFFFF?text=Biryani' },
+            { id: 2, name: 'Domino\'s Pizza', cuisine: ['Pizza', 'Fast Food'], rating: 4.2, deliveryTime: 25, priceForTwo: 400, imageUrl: 'https://placehold.co/600x400/f87171/FFFFFF?text=Pizza' },
+            { id: 3, name: 'Andhra Spice', cuisine: ['South Indian', 'Andhra'], rating: 4.7, deliveryTime: 35, priceForTwo: 600, imageUrl: 'https://placehold.co/600x400/fb923c/FFFFFF?text=Andhra' },
+            { id: 4, name: 'Cream Stone', cuisine: ['Ice Cream', 'Desserts'], rating: 4.8, deliveryTime: 20, priceForTwo: 300, imageUrl: 'https://placehold.co/600x400/4ade80/FFFFFF?text=Ice+Cream' },
+            { id: 5, name: 'Sitara Grand', cuisine: ['North Indian', 'Chinese'], rating: 4.0, deliveryTime: 40, priceForTwo: 700, imageUrl: 'https://placehold.co/600x400/38bdf8/FFFFFF?text=Multi-Cuisine' },
+            { id: 6, name: 'KFC', cuisine: ['Fast Food', 'Burgers'], rating: 4.1, deliveryTime: 28, priceForTwo: 450, imageUrl: 'https://placehold.co/600x400/c084fc/FFFFFF?text=Burgers' },
+            { id: 7, name: 'Udupi Akshaya', cuisine: ['South Indian'], rating: 4.4, deliveryTime: 33, priceForTwo: 250, imageUrl: 'https://placehold.co/600x400/f472b6/FFFFFF?text=South+Indian' },
+            { id: 8, name: 'The ThickShake Factory', cuisine: ['Desserts', 'Beverages'], rating: 4.6, deliveryTime: 22, priceForTwo: 350, imageUrl: 'https://placehold.co/600x400/22d3ee/FFFFFF?text=Shakes' },
         ];
 
-        // --- DOM ELEMENTS ---
-        const restaurantGrid = document.getElementById('restaurant-grid');
-        const searchInput = document.getElementById('search-input');
-        const statusMessage = document.getElementById('status-message');
-        const categoryFiltersContainer = document.getElementById('category-filters');
+        // --- Core Functions ---
 
         /**
-         * Renders a list of restaurant objects to the DOM
-         * @param {Array} restaurantsToShow - An array of restaurant objects
+         * Renders a list of restaurant cards to the grid
+         * @param {Array} restaurantList - The list of restaurants to display
          */
-        function renderRestaurants(restaurantsToShow) {
+        function displayRestaurants(restaurantList) {
             restaurantGrid.innerHTML = ''; // Clear previous results
-            if (restaurantsToShow.length === 0) {
-                restaurantGrid.innerHTML = <p class="text-gray-400 col-span-full text-center">No restaurants found matching your search.</p>;
+            if (restaurantList.length === 0) {
+                restaurantGrid.innerHTML = <p class="text-gray-500 col-span-full text-center">No restaurants found. Try a different search!</p>;
                 return;
             }
 
-            restaurantsToShow.forEach(resto => {
-                const restaurantCard = `
-                    <div class="restaurant-card bg-gray-800 rounded-lg overflow-hidden shadow-lg flex flex-col cursor-pointer">
-                        <img src="${resto.imageUrl}" alt="${resto.name}" class="w-full h-48 object-cover">
-                        <div class="p-4 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-white">${resto.name}</h3>
-                            <p class="text-amber-400 text-sm mt-1">${resto.cuisine}</p>
-                            <div class="flex justify-between items-center mt-4 text-sm text-gray-300">
-                                <span class="flex items-center bg-green-600 px-2 py-1 rounded">
-                                    <svg class="w-4 h-4 text-white mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                                    ${resto.rating}
-                                </span>
-                                <span>${resto.deliveryTime} MINS</span>
-                                <span>₹${resto.priceForTwo} FOR TWO</span>
-                            </div>
+            restaurantList.forEach(restaurant => {
+                const card = document.createElement('div');
+                card.className = 'restaurant-card bg-white rounded-lg shadow-md overflow-hidden';
+                
+                const ratingClass = restaurant.rating >= 4.5 ? 'rating-high' : restaurant.rating >= 4.0 ? 'rating-mid' : 'rating-low';
+
+                card.innerHTML = `
+                    <img src="${restaurant.imageUrl}" alt="${restaurant.name}" class="w-full h-40 object-cover">
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="text-lg font-bold text-gray-800">${restaurant.name}</h3>
+                            <span class="rating-badge ${ratingClass}">
+                                ★ ${restaurant.rating}
+                            </span>
+                        </div>
+                        <p class="text-gray-600 text-sm">${restaurant.cuisine.join(', ')}</p>
+                        <div class="mt-4 flex justify-between items-center text-sm text-gray-500">
+                            <span>${restaurant.deliveryTime} MINS</span>
+                            <span>₹${restaurant.priceForTwo} FOR TWO</span>
                         </div>
                     </div>
                 `;
-                restaurantGrid.innerHTML += restaurantCard;
+                restaurantGrid.appendChild(card);
             });
         }
-        
+
         /**
-         * Renders category filter buttons
+         * Sets up the cuisine filter buttons
          */
-        function renderCategoryFilters() {
-            const cuisines = ['All', ...new Set(restaurantsDB.map(r => r.cuisine))];
-            categoryFiltersContainer.innerHTML = cuisines.map(cuisine => 
-                `<button class="category-btn ${cuisine === 'All' ? 'active' : ''} bg-gray-700 hover:bg-amber-500 hover:text-gray-900 text-white font-semibold py-2 px-4 rounded-full transition duration-300" data-cuisine="${cuisine}">
+        function setupFilters() {
+            const allCuisines = restaurants.flatMap(r => r.cuisine);
+            const uniqueCuisines = ['All', ...new Set(allCuisines)];
+
+            filterContainer.innerHTML = uniqueCuisines.map(cuisine => 
+                `<button class="filter-btn text-sm font-medium border border-gray-300 rounded-full px-4 py-2 transition hover:bg-red-500 hover:text-white ${cuisine === 'All' ? 'active' : ''}" data-cuisine="${cuisine}">
                     ${cuisine}
                 </button>`
             ).join('');
-        }
-        
-        /**
-         * Filters restaurants based on search and active category
-         */
-        function filterAndRender() {
-            const searchTerm = searchInput.value.toLowerCase().trim();
-            const activeCategoryBtn = document.querySelector('.category-btn.active');
-            const activeCuisine = activeCategoryBtn.dataset.cuisine;
 
-            let filteredRestaurants = restaurantsDB;
+            // Add event listeners to the new buttons
+            filterContainer.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    // Update active state
+                    filterContainer.querySelector('.filter-btn.active').classList.remove('active');
+                    button.classList.add('active');
+
+                    const selectedCuisine = button.dataset.cuisine;
+                    filterAndDisplay(searchInput.value, selectedCuisine);
+                });
+            });
+        }
+
+        /**
+         * Filters restaurants based on search term and cuisine, then re-renders them
+         * @param {string} searchTerm - The text from the search input
+         * @param {string} activeCuisine - The currently selected cuisine filter
+         */
+        function filterAndDisplay(searchTerm, activeCuisine) {
+            let filteredRestaurants = restaurants;
 
             // Filter by cuisine
-            if (activeCuisine && activeCuisine !== 'All') {
-                filteredRestaurants = filteredRestaurants.filter(resto => resto.cuisine === activeCuisine);
+            if (activeCuisine !== 'All') {
+                filteredRestaurants = filteredRestaurants.filter(r => r.cuisine.includes(activeCuisine));
             }
 
             // Filter by search term
             if (searchTerm) {
-                filteredRestaurants = filteredRestaurants.filter(resto => 
-                    resto.name.toLowerCase().includes(searchTerm) || 
-                    resto.cuisine.toLowerCase().includes(searchTerm)
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                filteredRestaurants = filteredRestaurants.filter(r => 
+                    r.name.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    r.cuisine.some(c => c.toLowerCase().includes(lowerCaseSearchTerm))
                 );
             }
             
-            statusMessage.textContent = activeCuisine === 'All' ? 'All Restaurants' : ${activeCuisine} Restaurants;
-            renderRestaurants(filteredRestaurants);
+            displayRestaurants(filteredRestaurants);
         }
 
-        // --- EVENT LISTENERS ---
-
-        // Search input
-        searchInput.addEventListener('input', filterAndRender);
-        
-        // Category filter clicks
-        categoryFiltersContainer.addEventListener('click', (e) => {
-            if (e.target.classList.contains('category-btn')) {
-                // Remove active class from all buttons
-                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
-                // Add active class to the clicked button
-                e.target.classList.add('active');
-                filterAndRender();
-            }
+        // --- Event Listeners ---
+        searchInput.addEventListener('input', () => {
+            const activeCuisine = filterContainer.querySelector('.filter-btn.active').dataset.cuisine;
+            filterAndDisplay(searchInput.value, activeCuisine);
         });
 
-        // --- INITIAL RENDER ---
-        window.addEventListener('DOMContentLoaded', () => {
-            renderCategoryFilters();
-            renderRestaurants(restaurantsDB);
-        });
-
-    </script>
+        // --- Initial Load ---
+        setupFilters();
+        displayRestaurants(restaurants);
+    });
+</script>
 </body>
 </html>
